@@ -1,15 +1,30 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import { LayoutDashboard, PanelLeft } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+  Building2,
+  ChevronDown,
+  CircleDot,
+  FolderKanban,
+  Kanban,
+  LayoutDashboard,
+  ListOrdered,
+  PanelLeft,
+  Settings,
+  Target,
+  Users,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { SidebarNavLink } from './SidebarNavLink'
 import logo from '@/assets/FractalHive_Logo.svg'
 
-const navItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+const projectNavItems = [
+  { to: '/projects/overview', label: 'Overview', icon: LayoutDashboard, exact: true },
+  { to: '/projects/backlog', label: 'Backlog', icon: ListOrdered, exact: true },
+  { to: '/projects/sprint', label: 'Sprint', icon: Target, exact: true },
+  { to: '/projects/board', label: 'Board', icon: Kanban, exact: true },
+  { to: '/projects/issues', label: 'Issues', icon: CircleDot, exact: true },
+  { to: '/projects/members', label: 'Members', icon: Users, exact: true },
+  { to: '/projects/settings', label: 'Settings', icon: Settings, exact: true },
 ]
 
 interface SidebarProps {
@@ -19,6 +34,16 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation()
+  const isOnProjects = location.pathname.startsWith('/projects')
+  const [projectsOpen, setProjectsOpen] = useState(isOnProjects)
+
+  useEffect(() => {
+    if (isOnProjects) {
+      setProjectsOpen(true)
+    }
+  }, [isOnProjects])
+
+  const showProjectItems = !collapsed && projectsOpen
 
   return (
     <aside
@@ -50,40 +75,55 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
 
       <nav className={cn(
-        'flex flex-col flex-1 py-2',
+        'flex flex-col flex-1 overflow-y-auto py-2',
         collapsed ? 'items-center gap-0.5 px-0' : 'px-2 gap-0.5'
       )}>
-        {navItems.map(({ to, label, icon: Icon, exact }) => {
-          const isActive = exact
-            ? location.pathname === to
-            : location.pathname.startsWith(to)
+        <SidebarNavLink
+          to="/workspaces"
+          label="Workspaces"
+          icon={Building2}
+          collapsed={collapsed}
+        />
 
-          const linkEl = (
-            <NavLink
-              to={to}
+        <div className={cn(collapsed ? 'flex flex-col items-center gap-0.5' : 'flex flex-col gap-0.5')}>
+          {!collapsed ? (
+            <button
+              type="button"
+              onClick={() => setProjectsOpen((open) => !open)}
               className={cn(
-                'flex items-center gap-3 rounded-lg transition-colors text-sm font-medium',
-                collapsed ? 'h-10 w-10 justify-center' : 'px-3 py-2 w-full',
-                isActive
-                  ? 'bg-background text-foreground font-semibold shadow-sm'
+                'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                isOnProjects
+                  ? 'text-foreground'
                   : 'text-foreground/70 hover:bg-navbar-border hover:text-foreground'
               )}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              {!collapsed && <span>{label}</span>}
-            </NavLink>
-          )
+              <FolderKanban className="h-5 w-5 flex-shrink-0" />
+              <span className="flex-1 text-left">Projects</span>
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 flex-shrink-0 text-foreground/50 transition-transform',
+                  projectsOpen && 'rotate-180'
+                )}
+              />
+            </button>
+          ) : (
+            <SidebarNavLink
+              to="/projects/overview"
+              label="Projects"
+              icon={FolderKanban}
+              collapsed={collapsed}
+              exact={false}
+            />
+          )}
 
-          if (collapsed) {
-            return (
-              <Tooltip key={to} delayDuration={0}>
-                <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
-                <TooltipContent side="right" className="text-xs">{label}</TooltipContent>
-              </Tooltip>
-            )
-          }
-          return <div key={to}>{linkEl}</div>
-        })}
+          {showProjectItems && (
+            <div className={cn('flex flex-col gap-0.5', collapsed && 'items-center')}>
+              {projectNavItems.map((item) => (
+                <SidebarNavLink key={item.to} {...item} collapsed={collapsed} nested={!collapsed} />
+              ))}
+            </div>
+          )}
+        </div>
       </nav>
     </aside>
   )

@@ -1,6 +1,6 @@
-# fractal-project-tracker-web
+# ptrackFE
 
-React frontend for [fractal-project-tracker](../fhjira) (Spring Boot API).
+React frontend for [ptrackBE](../ptrackBE) (Spring Boot API).
 
 ## Stack
 
@@ -8,11 +8,21 @@ React frontend for [fractal-project-tracker](../fhjira) (Spring Boot API).
 - Vite
 - React Router
 - TanStack Query
-- Native Fetch (no HTTP client library)
+- Axios
+- Sonner (toasts)
 - Zustand
 - React Hook Form + Zod
 - Dnd Kit
 - Tailwind CSS
+
+## Environment
+
+Copy `.env.example` to `.env`:
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_BASE_URL` | Backend base URL (e.g. `http://localhost:8080`) |
+| `VITE_API_TOKEN` | Optional JWT — attached by `services/api.ts` when set |
 
 ## Setup
 
@@ -30,12 +40,10 @@ API (backend): http://localhost:8080
 ```
 src/
 ├── app/          # App shell, providers
-├── components/   # Shared UI
-├── features/     # Feature modules
-├── hooks/        # Custom hooks
-├── lib/          # Fetch client, utilities
+├── components/   # Shared UI (common/, layout/)
+├── hooks/        # React Query hooks
+├── lib/          # Utilities
 ├── pages/        # Route pages
-├── routes/       # Route definitions
-├── stores/       # Zustand stores
+├── services/     # API layer (axios)
 └── types/        # Shared TypeScript types
 ```
