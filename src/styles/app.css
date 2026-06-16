@@ -1,0 +1,69 @@
+/*
+ * App-specific theme extensions and styles (not in Fractal Hive shared globals).
+ */
+@theme inline {
+  --color-brand-from: var(--brand-from);
+  --color-brand-via: var(--brand-via);
+  --color-brand-to: var(--brand-to);
+  --color-brand-glow: var(--brand-glow);
+}
+
+:root {
+  --brand-from: #11b6f6;
+  --brand-via: #2f61f4;
+  --brand-to: #4855f3;
+  --brand-glow: #95c5ff;
+}
+
+.dark {
+  --brand-from: #11b6f6;
+  --brand-via: #2f61f4;
+  --brand-to: #4855f3;
+  --brand-glow: #95c5ff;
+}
+
+@layer components {
+  .login-hero-panel {
+    background: linear-gradient(
+      to bottom right,
+      var(--brand-from),
+      var(--brand-via),
+      var(--brand-to)
+    );
+  }
+
+  .login-hero-overlay-pink {
+    background: radial-gradient(
+      110% 90% at 24% 82%,
+      color-mix(in srgb, var(--brand-glow) 40%, white) 0%,
+      color-mix(in srgb, var(--brand-from) 30%, transparent) 40%,
+      transparent 72%
+    );
+  }
+
+  .login-hero-overlay-warm {
+    background: radial-gradient(
+      78% 50% at 76% 88%,
+      color-mix(in srgb, var(--accent) 80%, orange) 0%,
+      color-mix(in srgb, var(--brand-via) 40%, transparent) 34%,
+      transparent 70%
+    );
+  }
+
+  .login-hero-overlay-deep {
+    background: radial-gradient(
+      68% 44% at 50% 62%,
+      color-mix(in srgb, var(--brand-via) 90%, var(--primary)) 0%,
+      color-mix(in srgb, var(--brand-to) 80%, var(--primary)) 56%,
+      transparent 88%
+    );
+  }
+
+  .login-hero-glow-left {
+    background-color: color-mix(in srgb, var(--brand-glow) 35%, transparent);
+  }
+
+  .login-hero-glow-right {
+    background-color: color-mix(in srgb, var(--brand-from) 30%, transparent);
+  }
+}

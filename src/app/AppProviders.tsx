@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
+import { AuthBootstrap } from '@/components/auth/AuthBootstrap'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,7 +15,9 @@ type AppProvidersProps = {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter>
+        <AuthBootstrap>{children}</AuthBootstrap>
+      </BrowserRouter>
     </QueryClientProvider>
   )
 }

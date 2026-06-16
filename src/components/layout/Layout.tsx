@@ -22,8 +22,8 @@ export default function Layout() {
     <div className="flex h-screen overflow-hidden bg-navbar">
       <Sidebar collapsed={collapsed} onToggle={toggleCollapsed} />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <TopBar collapsed={collapsed} onToggle={toggleCollapsed} />
-        <main className="flex-1 overflow-y-auto bg-background rounded-tl-2xl">
+        <TopBar />
+        <main className="flex-1 overflow-y-auto bg-background rounded-tl-3xl">
           <div className="p-6">
             <Outlet />
           </div>

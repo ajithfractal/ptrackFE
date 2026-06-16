@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/lib/utils'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@/shared/components/ui/tooltip'
 
 interface SidebarNavLinkProps {
   to: string

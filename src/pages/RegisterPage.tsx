@@ -1,29 +1,27 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { AuthHeroHeader, AuthLayout, AuthSessionLoader } from '@/components/auth/AuthLayout'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { PasswordInput } from '@/shared/components/ui/password-input'
-import { useLogin, useAuth } from '@/hooks/useAuth'
+import { useAuth, useRegister } from '@/hooks/useAuth'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { isAuthenticated, initializing } = useAuth()
-  const loginMutation = useLogin()
+  const registerMutation = useRegister()
 
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
 
-  const returnTo = (location.state as { from?: string } | undefined)?.from
-
   useEffect(() => {
     if (!isAuthenticated) return
-    const destination = returnTo && returnTo !== '/login' ? returnTo : '/workspaces'
-    navigate(destination, { replace: true })
-  }, [isAuthenticated, navigate, returnTo])
+    navigate('/workspaces', { replace: true })
+  }, [isAuthenticated, navigate])
 
   if (initializing) {
     return (
@@ -55,6 +53,14 @@ export default function LoginPage() {
     e.preventDefault()
     setFormError(null)
 
+    if (!firstName.trim()) {
+      setFormError('First name is required')
+      return
+    }
+    if (!lastName.trim()) {
+      setFormError('Last name is required')
+      return
+    }
     if (!email.trim()) {
       setFormError('Email is required')
       return
@@ -64,29 +70,29 @@ export default function LoginPage() {
       return
     }
 
-    const destination = returnTo && returnTo !== '/login' ? returnTo : '/workspaces'
-
     try {
-      await loginMutation.mutateAsync({
+      await registerMutation.mutateAsync({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         email: email.trim(),
         password,
-        redirectTo: destination,
       })
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Login failed')
+      setFormError(err instanceof Error ? err.message : 'Registration failed')
     }
   }
 
-  const displayError = formError ?? (loginMutation.isError ? loginMutation.error.message : null)
+  const displayError =
+    formError ?? (registerMutation.isError ? registerMutation.error.message : null)
 
   return (
     <AuthLayout>
       <AuthHeroHeader />
 
       <div>
-        <h2 className="text-2xl font-semibold text-foreground">Sign in</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Create account</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Enter your credentials to access your workspaces
+          Register to join the ptrack application
         </p>
       </div>
 
@@ -98,6 +104,40 @@ export default function LoginPage() {
 
       <form className="space-y-6" onSubmit={onSubmit}>
         <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="firstName" className="text-sm font-medium text-foreground">
+                First name
+              </label>
+              <Input
+                id="firstName"
+                type="text"
+                placeholder="First name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={registerMutation.isPending}
+                required
+                autoComplete="given-name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="lastName" className="text-sm font-medium text-foreground">
+                Last name
+              </label>
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={registerMutation.isPending}
+                required
+                autoComplete="family-name"
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
               Email
@@ -108,7 +148,7 @@ export default function LoginPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loginMutation.isPending}
+              disabled={registerMutation.isPending}
               required
               autoComplete="email"
             />
@@ -123,22 +163,22 @@ export default function LoginPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loginMutation.isPending}
+              disabled={registerMutation.isPending}
               required
-              autoComplete="current-password"
+              autoComplete="new-password"
             />
           </div>
         </div>
 
-        <Button type="submit" disabled={loginMutation.isPending} className="w-full">
-          {loginMutation.isPending ? 'Signing in…' : 'Sign in'}
+        <Button type="submit" disabled={registerMutation.isPending} className="w-full">
+          {registerMutation.isPending ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
-        <Link to="/register" className="font-medium text-primary hover:underline">
-          Create one
+        Already have an account?{' '}
+        <Link to="/login" className="font-medium text-primary hover:underline">
+          Sign in
         </Link>
       </p>
 
