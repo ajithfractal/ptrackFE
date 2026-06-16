@@ -1,5 +1,10 @@
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Global theme tokens — edit :root (and .dark) below to retheme the whole app.
+ * Use Tailwind semantic classes in components: bg-primary, text-foreground,
+ * border-input, bg-background, text-muted-foreground, etc.
+ */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -38,18 +43,28 @@
   --color-navbar: var(--navbar);
   --color-navbar-foreground: var(--navbar-foreground);
   --color-navbar-border: var(--navbar-border);
+  --color-brand-from: var(--brand-from);
+  --color-brand-via: var(--brand-via);
+  --color-brand-to: var(--brand-to);
+  --color-brand-glow: var(--brand-glow);
 }
 
 :root {
   --radius: 0.625rem;
-  --background: #f4f1f2;
+
+  /* Brand */
+  --primary: #183e58;
+  --primary-foreground: #ffffff;
+
+  /* Surfaces */
+  --background: #ffff;
   --foreground: #0f1419;
   --card: #ffffff;
   --card-foreground: #0f1419;
   --popover: #ffffff;
   --popover-foreground: #0f1419;
-  --primary: #183e58;
-  --primary-foreground: #ffffff;
+
+  /* UI chrome */
   --secondary: #ebeae4;
   --secondary-foreground: #0f1419;
   --muted: #ebeae4;
@@ -61,17 +76,25 @@
   --border: #ebeae4;
   --input: #e0e0e0;
   --ring: #badede;
+
+  /* Layout regions (derived from brand + surfaces) */
   --sidebar: #ecf5fc;
-  --sidebar-foreground: #0f1419;
-  --sidebar-primary: #183e58;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ebeae4;
-  --sidebar-accent-foreground: #0f1419;
-  --sidebar-border: #ebeae4;
-  --sidebar-ring: #badede;
-  --navbar: #ebeae4;
-  --navbar-foreground: #0f1419;
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --navbar: var(--secondary);
+  --navbar-foreground: var(--foreground);
   --navbar-border: #dedbd3;
+
+  /* Login / marketing gradient panel */
+  --brand-from: #11b6f6;
+  --brand-via: #2f61f4;
+  --brand-to: #4855f3;
+  --brand-glow: #95c5ff;
 }
 
 .dark {
@@ -96,8 +119,8 @@
   --ring: oklch(0.556 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
@@ -105,6 +128,10 @@
   --navbar: oklch(0.205 0 0);
   --navbar-foreground: oklch(0.985 0 0);
   --navbar-border: oklch(1 0 0 / 10%);
+  --brand-from: #11b6f6;
+  --brand-via: #2f61f4;
+  --brand-to: #4855f3;
+  --brand-glow: #95c5ff;
 }
 
 @layer base {
@@ -113,5 +140,51 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .login-hero-panel {
+    background: linear-gradient(
+      to bottom right,
+      var(--brand-from),
+      var(--brand-via),
+      var(--brand-to)
+    );
+  }
+
+  .login-hero-overlay-pink {
+    background: radial-gradient(
+      110% 90% at 24% 82%,
+      color-mix(in srgb, var(--brand-glow) 40%, white) 0%,
+      color-mix(in srgb, var(--brand-from) 30%, transparent) 40%,
+      transparent 72%
+    );
+  }
+
+  .login-hero-overlay-warm {
+    background: radial-gradient(
+      78% 50% at 76% 88%,
+      color-mix(in srgb, var(--accent) 80%, orange) 0%,
+      color-mix(in srgb, var(--brand-via) 40%, transparent) 34%,
+      transparent 70%
+    );
+  }
+
+  .login-hero-overlay-deep {
+    background: radial-gradient(
+      68% 44% at 50% 62%,
+      color-mix(in srgb, var(--brand-via) 90%, var(--primary)) 0%,
+      color-mix(in srgb, var(--brand-to) 80%, var(--primary)) 56%,
+      transparent 88%
+    );
+  }
+
+  .login-hero-glow-left {
+    background-color: color-mix(in srgb, var(--brand-glow) 35%, transparent);
+  }
+
+  .login-hero-glow-right {
+    background-color: color-mix(in srgb, var(--brand-from) 30%, transparent);
   }
 }

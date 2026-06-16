@@ -47,7 +47,7 @@ export default function WorkspacesPage() {
   }, [name, slugTouched, form])
 
   const handleCreate = async (values: FormValues) => {
-    await createMutation.mutateAsync(values).then(() => {
+    await createMutation.mutateAsync({ name: values.name, slug: values.slug }).then(() => {
       toast.success('Workspace created')
       form.reset()
       setSlugTouched(false)
