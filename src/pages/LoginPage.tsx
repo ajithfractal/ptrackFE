@@ -6,6 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { PasswordInput } from '@/shared/components/ui/password-input'
 import { useLogin, useAuth } from '@/hooks/useAuth'
+import { buildInvitationAcceptPath, resolveInviteToken } from '@/hooks/useInvitations'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -17,7 +18,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
 
-  const returnTo = (location.state as { from?: string } | undefined)?.from
+  const inviteToken = resolveInviteToken(new URLSearchParams(location.search))
+  const returnTo =
+    (location.state as { from?: string } | undefined)?.from ??
+    (inviteToken ? buildInvitationAcceptPath(inviteToken) : undefined)
 
   useEffect(() => {
     if (!isAuthenticated) return
@@ -137,7 +141,11 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link to="/register" className="font-medium text-primary hover:underline">
+        <Link
+          to={inviteToken ? `/register?invite=${encodeURIComponent(inviteToken)}` : '/register'}
+          state={returnTo ? { from: returnTo } : undefined}
+          className="font-medium text-primary hover:underline"
+        >
           Create one
         </Link>
       </p>

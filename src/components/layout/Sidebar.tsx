@@ -16,6 +16,7 @@ import {
 import { cn } from '@/shared/lib/utils'
 import { PERMISSIONS } from '@/lib/permissions'
 import { useAuth } from '@/hooks/useAuth'
+import SideNav from './SideNav'
 import { SidebarNavLink } from './SidebarNavLink'
 import logo from '@/assets/FractalHive_Logo.svg'
 
@@ -118,6 +119,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             collapsed={collapsed}
           />
         )}
+
+        <SideNav collapsed={collapsed} />
 
         <div className={cn(collapsed ? 'flex flex-col items-center gap-0.5' : 'flex flex-col gap-0.5')}>
           {!collapsed ? (

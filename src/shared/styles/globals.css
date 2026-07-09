@@ -58,7 +58,7 @@
   --radius: 0.625rem;
   /* Light theme mapped to Figma variables */
   /* Backgrounds */
-  --background: #f4f1f2; /* white-bg */
+  --background: #ffff; /* white-bg */
   --foreground: #0f1419; /* Neutral Text */
   --card: #ffffff; /* cards on top of background */
   --card-foreground: #0f1419;

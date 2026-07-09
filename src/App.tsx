@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import PermissionRoute from '@/components/auth/PermissionRoute'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Layout from '@/components/layout/Layout'
-import { PERMISSIONS } from '@/lib/permissions'
+import { NOTIFICATION_ENGINE_MENU_PERMISSIONS, PERMISSIONS } from '@/lib/permissions'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import UnauthorizedPage from '@/pages/UnauthorizedPage'
@@ -16,12 +16,15 @@ import IssuesPage from '@/pages/projects/IssuesPage'
 import MembersPage from '@/pages/projects/MembersPage'
 import SettingsPage from '@/pages/projects/SettingsPage'
 import ProfilePage from '@/pages/ProfilePage'
+import AcceptInvitationPage from '@/pages/AcceptInvitationPage'
+import NotificationEnginePage from '@/pages/admin/NotificationEnginePage'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/invitations/accept" element={<AcceptInvitationPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/workspaces" replace />} />
@@ -30,6 +33,9 @@ export default function App() {
           <Route path="unauthorized" element={<UnauthorizedPage />} />
           <Route element={<PermissionRoute permission={PERMISSIONS.USERS_READ} />}>
             <Route path="users" element={<UsersPage />} />
+          </Route>
+          <Route element={<PermissionRoute permissions={NOTIFICATION_ENGINE_MENU_PERMISSIONS} />}>
+            <Route path="admin/notifications/*" element={<NotificationEnginePage />} />
           </Route>
           <Route path="projects" element={<Navigate to="/projects/overview" replace />} />
           <Route path="projects/overview" element={<OverviewPage />} />

@@ -1,16 +1,23 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { AuthHeroHeader, AuthLayout, AuthSessionLoader } from '@/components/auth/AuthLayout'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { PasswordInput } from '@/shared/components/ui/password-input'
 import { useAuth, useRegister } from '@/hooks/useAuth'
+import { buildInvitationAcceptPath, resolveInviteToken } from '@/hooks/useInvitations'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated, initializing } = useAuth()
   const registerMutation = useRegister()
+
+  const inviteToken = resolveInviteToken(new URLSearchParams(location.search))
+  const returnTo =
+    (location.state as { from?: string } | undefined)?.from ??
+    (inviteToken ? buildInvitationAcceptPath(inviteToken) : undefined)
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -20,8 +27,8 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (!isAuthenticated) return
-    navigate('/workspaces', { replace: true })
-  }, [isAuthenticated, navigate])
+    navigate(returnTo ?? '/workspaces', { replace: true })
+  }, [isAuthenticated, navigate, returnTo])
 
   if (initializing) {
     return (
@@ -76,6 +83,8 @@ export default function RegisterPage() {
         lastName: lastName.trim(),
         email: email.trim(),
         password,
+        redirectTo: returnTo,
+        inviteToken: inviteToken ?? undefined,
       })
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Registration failed')
@@ -177,7 +186,11 @@ export default function RegisterPage() {
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-primary hover:underline">
+        <Link
+          to={inviteToken ? `/login?invite=${encodeURIComponent(inviteToken)}` : '/login'}
+          state={returnTo ? { from: returnTo } : undefined}
+          className="font-medium text-primary hover:underline"
+        >
           Sign in
         </Link>
       </p>

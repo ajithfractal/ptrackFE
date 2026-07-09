@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { authStorage } from '@/lib/authStorage'
+import { userHasAnyPermission } from '@/lib/menuPermissions'
 import { authService } from '@/services/authService'
 import { useAuthStore } from '@/stores/authStore'
 import type { LoginRequest } from '@/types'
@@ -43,6 +44,8 @@ type RegisterVariables = {
   password: string
   firstName: string
   lastName: string
+  redirectTo?: string
+  inviteToken?: string
 }
 
 export const useRegister = () => {
@@ -50,9 +53,15 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: (data: RegisterVariables) => authService.register(data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success('Account created. Please sign in.')
-      navigate('/login', { replace: true })
+      const loginPath = variables.inviteToken
+        ? `/login?invite=${encodeURIComponent(variables.inviteToken)}`
+        : '/login'
+      navigate(loginPath, {
+        replace: true,
+        state: variables.redirectTo ? { from: variables.redirectTo } : undefined,
+      })
     },
     onError: (e: Error) => toast.error(e.message),
   })
@@ -73,10 +82,10 @@ export const useAuth = () => {
 
   const hasRole = (role: string) => user?.roles.includes(role) ?? false
   const hasPermission = (permission: string) =>
-    user?.permissions.includes(permission) ?? false
+    userHasAnyPermission(user?.permissions, [permission])
   const hasAnyRole = (roles: string[]) => roles.some(hasRole)
   const hasAnyPermission = (permissions: string[]) =>
-    permissions.some(hasPermission)
+    userHasAnyPermission(user?.permissions, permissions)
 
   return {
     user,

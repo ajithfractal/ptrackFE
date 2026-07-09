@@ -1,3 +1,27 @@
 export const PERMISSIONS = {
   USERS_READ: 'users:read',
+  NOTIFICATIONS_READ: 'notifications:read',
+  NOTIFICATIONS_SEND: 'notifications:send',
+  NOTIFICATIONS_RETRY: 'notifications:retry',
+  NOTIFICATIONS_TEMPLATES_ALL: 'notifications_templates:*',
 } as const
+
+const NOTIFICATIONS_ACCESS = [
+  PERMISSIONS.NOTIFICATIONS_READ,
+  PERMISSIONS.NOTIFICATIONS_SEND,
+  PERMISSIONS.NOTIFICATIONS_RETRY,
+] as const
+
+export const NOTIFICATION_ENGINE_SUB_PERMISSIONS = {
+  notifications: NOTIFICATIONS_ACCESS,
+  templates: [PERMISSIONS.NOTIFICATIONS_TEMPLATES_ALL] as const,
+  playground: [PERMISSIONS.NOTIFICATIONS_SEND] as const,
+} as const
+
+export const NOTIFICATION_ENGINE_MENU_PERMISSIONS = [
+  ...NOTIFICATIONS_ACCESS,
+  PERMISSIONS.NOTIFICATIONS_TEMPLATES_ALL,
+] as const
+
+/** Union used by /admin/notifications/* route guard */
+export const NOTIFICATION_PERMISSIONS = NOTIFICATION_ENGINE_MENU_PERMISSIONS

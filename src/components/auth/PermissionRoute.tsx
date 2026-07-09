@@ -4,11 +4,12 @@ import { useAuth } from '@/hooks/useAuth'
 import UnauthorizedPage from '@/pages/UnauthorizedPage'
 
 type PermissionRouteProps = {
-  permission: string
+  permission?: string
+  permissions?: readonly string[]
 }
 
-export default function PermissionRoute({ permission }: PermissionRouteProps) {
-  const { hasPermission, initializing } = useAuth()
+export default function PermissionRoute({ permission, permissions }: PermissionRouteProps) {
+  const { hasPermission, hasAnyPermission, initializing } = useAuth()
 
   if (initializing) {
     return (
@@ -21,7 +22,13 @@ export default function PermissionRoute({ permission }: PermissionRouteProps) {
     )
   }
 
-  if (!hasPermission(permission)) {
+  const allowed = permissions
+    ? hasAnyPermission([...permissions])
+    : permission
+      ? hasPermission(permission)
+      : false
+
+  if (!allowed) {
     return <UnauthorizedPage />
   }
 

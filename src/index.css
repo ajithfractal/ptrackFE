@@ -1,3 +1,42 @@
 @import 'tailwindcss';
+@import 'react-day-picker/style.css';
 @import '@/shared/styles/globals.css';
 @import '@/styles/app.css';
+
+:root {
+  --sb-track-color: var(--input);
+  --sb-thumb-color: var(--primary);
+  --sb-size: 8px;
+}
+
+*::-webkit-scrollbar {
+  width: var(--sb-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 20px;
+}
+
+*::-webkit-scrollbar:horizontal {
+  height: var(--sb-size);
+}
+
+*::-webkit-scrollbar-thumb:horizontal {
+  background: var(--sb-thumb-color);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-track:horizontal {
+  background: var(--sb-track-color);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+  }
+}

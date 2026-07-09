@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, UserPlus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import PageHeader from '../components/common/PageHeader'
+import InviteMemberDialog from '../components/workspaces/InviteMemberDialog'
+import { Button } from '@/shared/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { useCreateWorkspace, useWorkspaces } from '../hooks/useWorkspaces'
 import { nameToSlug } from '../lib/slug'
+import type { Workspace, WorkspaceRole } from '../types'
 
 const schema = z.object({
   name: z
@@ -27,11 +31,61 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
+const WORKSPACE_TABS: { value: WorkspaceRole; label: string; empty: string }[] = [
+  { value: 'OWNER', label: 'Owned by me', empty: 'You do not own any workspaces yet.' },
+  { value: 'ADMIN', label: 'Admin of', empty: 'You are not an admin of any workspaces.' },
+  { value: 'MEMBER', label: 'Member of', empty: 'You are not a member of any workspaces.' },
+]
+
+function WorkspaceList({
+  workspaces,
+  emptyMessage,
+  canInvite,
+  onInvite,
+}: {
+  workspaces?: Workspace[]
+  emptyMessage: string
+  canInvite: boolean
+  onInvite: (workspace: Workspace) => void
+}) {
+  if (!workspaces || workspaces.length === 0) {
+    return <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+  }
+
+  return (
+    <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+      {workspaces.map((workspace) => (
+        <li key={workspace.id} className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="min-w-0">
+            <p className="font-medium text-foreground">{workspace.name}</p>
+            <p className="font-mono text-xs text-muted-foreground">{workspace.slug}</p>
+          </div>
+          {canInvite && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => onInvite(workspace)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Invite
+            </Button>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export default function WorkspacesPage() {
-  const { data: workspaces, isLoading } = useWorkspaces()
+  const [activeTab, setActiveTab] = useState<WorkspaceRole>('OWNER')
+  const { data: workspaces, isLoading } = useWorkspaces(activeTab)
   const createMutation = useCreateWorkspace()
   const [createOpen, setCreateOpen] = useState(false)
   const [slugTouched, setSlugTouched] = useState(false)
+  const [inviteWorkspace, setInviteWorkspace] = useState<Workspace | null>(null)
+  const [inviteOpen, setInviteOpen] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -39,6 +93,8 @@ export default function WorkspacesPage() {
   })
 
   const name = form.watch('name')
+  const activeTabConfig = WORKSPACE_TABS.find((tab) => tab.value === activeTab)!
+  const canInvite = activeTab === 'OWNER' || activeTab === 'ADMIN'
 
   useEffect(() => {
     if (!slugTouched) {
@@ -52,7 +108,13 @@ export default function WorkspacesPage() {
       form.reset()
       setSlugTouched(false)
       setCreateOpen(false)
+      setActiveTab('OWNER')
     }).catch(() => { /* onError in hook shows toast */ })
+  }
+
+  const openInvite = (workspace: Workspace) => {
+    setInviteWorkspace(workspace)
+    setInviteOpen(true)
   }
 
   return (
@@ -70,6 +132,15 @@ export default function WorkspacesPage() {
             New workspace
           </button>
         }
+      />
+
+      <InviteMemberDialog
+        workspace={inviteWorkspace}
+        open={inviteOpen}
+        onOpenChange={(open) => {
+          setInviteOpen(open)
+          if (!open) setInviteWorkspace(null)
+        }}
       />
 
       {createOpen && (
@@ -140,26 +211,32 @@ export default function WorkspacesPage() {
         </div>
       )}
 
-      {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      )}
-
-      {!isLoading && workspaces?.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No workspaces yet. Create one to get started.
-        </p>
-      )}
-
-      {workspaces && workspaces.length > 0 && (
-        <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-          {workspaces.map((workspace) => (
-            <li key={workspace.id} className="px-4 py-3">
-              <p className="font-medium text-foreground">{workspace.name}</p>
-              <p className="font-mono text-xs text-muted-foreground">{workspace.slug}</p>
-            </li>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as WorkspaceRole)}>
+        <TabsList>
+          {WORKSPACE_TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="px-4">
+              {tab.label}
+            </TabsTrigger>
           ))}
-        </ul>
-      )}
+        </TabsList>
+
+        <TabsContent value={activeTab} className="mt-4">
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <WorkspaceList
+              workspaces={workspaces}
+              canInvite={canInvite}
+              onInvite={openInvite}
+              emptyMessage={
+                activeTab === 'OWNER'
+                  ? 'No workspaces yet. Create one to get started.'
+                  : activeTabConfig.empty
+              }
+            />
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
